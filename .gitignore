@@ -14,3 +14,9 @@ martin-onnx-beispiel*.mp3
 
 # Die Anmeldegeheimnisse des Stapels - nie ins Git.
 .env
+
+# Rauchtest der Seite: Testmaterial, Ergebnisse und Playwright.
+tests/ui/.media/
+tests/ui/.raus/
+tests/ui/node_modules/
+tests/ui/package*.json

@@ -90,7 +90,7 @@ darf auch eine stille Strecke in einem Film sein, der neu vertont wird.
 Eine so gesetzte Pause ist **stärker als jede automatische Pause**: Leerzeilen oder eine
 Überschrift direkt daneben treten hinter ihr zurück, die angegebene Länge gilt. Sie
 erscheint in der Vorschau blau als *Pause aus dem Text*, das Feld *Pausen zurücksetzen*
-lässt sie unangetastet, und die Standardlängen oben verändern sie nicht. Wer sie doch
+lässt sie unangetastet, und die Standardlängen unter *Pausenlängen* verändern sie nicht. Wer sie doch
 anders haben will, ändert entweder den Wert im Text oder überschreibt ihn in der Vorschau.
 
 `(Pause: 0 s)` verbindet die Nachbarn zu einem Stück — der Übergang wird dann ohne jede
@@ -273,10 +273,17 @@ belasten. Die Aussprache-Liste steht am Schluss und gilt rückwirkend für den g
 
 ## 5. Feinschliff in der Oberfläche
 
+Die Oberfläche folgt der Arbeit in drei Reitern — *Text*, *Schnitt* und *Export* —; daneben
+stehen die Werkzeuge *Abschrift*, *Zusammenfügen*, *Projekte & Dateien* und diese Anleitung.
+Oben steht das geöffnete Projekt mit seinem Stand, und *Speichern* daneben oder `Strg+S` legt
+es auf den Server. Was in der Seite steht, merkt sich der Browser ohnehin: nach einem Neuladen
+ist der Sprechertext samt Pausen wieder da, und der Ton kommt aus dem Speicher des
+Sprachdienstes.
+
 1. *Abschrift aus Video* ist der Weg hinein, wenn der Text noch gar nicht geschrieben ist —
    etwa, um einen Film mit der Stimme Martin neu zu vertonen. Eine gewählte oder hierher
    gezogene Datei schreibt Whisper gleich nach dem Hochladen mit, und *In den Sprechertext
-   übernehmen* setzt das Ergebnis in das Feld unten. In der Form *Mit Pausen* steht dort jeder
+   übernehmen* setzt das Ergebnis in den Sprechertext im Reiter *Text*. In der Form *Mit Pausen* steht dort jeder
    Satz auf einer eigenen Zeile und die Stille dazwischen als Zeile `(Pause: … s)` — so lang,
    dass Martin jeden Satz dort beginnt, wo er im Film beginnt. Die Pausen folgen dem Film auch
    danach: nach *Audio erzeugen* rechnet die Seite sie mit Martins gemessenen Längen nach, und
@@ -302,7 +309,7 @@ belasten. Die Aussprache-Liste steht am Schluss und gilt rückwirkend für den g
    auf dem Server, wird beim Öffnen der Seite geladen und gilt damit an jedem Platz und für
    jedes Projekt. Was nur für einen Text gilt, bleibt als Zeile `(Chefarzt|Schähfarzt)` in
    diesem Text stehen und sticht die Liste, wenn beide dasselbe Wort nennen.
-5. Die fünf Standardlängen oben anpassen — sie gelten für alle Pausen, die noch nicht von Hand
+5. Die fünf Standardlängen unter *Pausenlängen* anpassen — sie gelten für alle Pausen, die noch nicht von Hand
    geändert wurden. Sie werden im Browser gemerkt.
 6. Einzelne Pausen direkt in der Vorschau überschreiben; sie werden dann blau markiert und von
    Änderungen an den Standardwerten nicht mehr angefasst.
@@ -315,6 +322,8 @@ belasten. Die Aussprache-Liste steht am Schluss und gilt rückwirkend für den g
    ganzen Text, ein geänderter Satz nur diesen Satz. Eine neue oder geänderte Aussprache-Regel
    trifft nur die Sätze, in denen das Wort vorkommt, und die spricht die Seite von selbst nach,
    sobald der erste Lauf einmal gelaufen ist.
+   *Ton speichern* daneben speichert die Tonspur gleich im Format aus dem Reiter *Export*,
+   und `Strg+Enter` spricht, wo immer man gerade ist.
 8. *Projekt exportieren* schreibt eine JSON-Datei mit Text, Tempo, Standardlängen und allen
    einzeln gesetzten Pausen — die Arbeitsfassung zum Weitergeben und Zurückladen.
 9. *Text als Markdown speichern* schreibt den Sprechertext als `.md`-Datei heraus — mit
@@ -322,14 +331,16 @@ belasten. Die Aussprache-Liste steht am Schluss und gilt rückwirkend für den g
    Datei, behält er deren Namen, sonst trägt die Datei das Datum. Das ist der Weg zurück, wenn
    im *Schnittfenster* am Text gearbeitet wurde: dort wird derselbe Text geändert, und hier geht
    er wieder als Datei heraus.
-10. *Audio exportieren* speichert die fertige Tonspur als WAV, FLAC, MP3 oder Opus, jeweils in
+10. *Audio exportieren* im Reiter *Export* speichert die fertige Tonspur als WAV, FLAC, MP3 oder Opus, jeweils in
     mehreren Qualitätsstufen, und zeigt vorher die voraussichtliche Dateigröße. Für Sprache
     reichen MP3 mit 64 kbit/s oder Opus mit 24 kbit/s; für den Videoschnitt WAV mit 48 kHz. Opus
     gibt es nur in Chrome, Edge und Firefox ab Version 130 und nur über HTTPS. Die Datei heißt
     wie das Projekt, mit `TAV` davor.
-11. *Video exportieren mit Sprachausgabe* hängt mehrere Videoclips in der Reihenfolge der Liste aneinander
+11. *Video exportieren mit Sprachausgabe* hängt die Clips aus dem Reiter *Schnitt* in der Reihenfolge der Liste aneinander
     und legt die Sprachausgabe darunter. Format (H.264, H.265, VP9), Seitenverhältnis,
-    Auflösung, Bildrate, Qualität und Ton sind wählbar; die geschätzte Dateigröße steht daneben.
+    Auflösung, Bildrate, Qualität und Ton sind wählbar — vorn als *Voreinstellung* für die
+    üblichen Fälle, im Einzelnen unter *Format, Auflösung, Qualität und Zeiten*; die geschätzte
+    Dateigröße steht daneben.
     Sind Video und Sprache verschieden lang, entscheidet die Längen-Einstellung, ob das letzte
     Bild gehalten, das Video gekürzt oder Stille angehängt wird. Kodiert wird auf dem Server.
     Die Sprachausgabe geht dafür als Tonspur hinauf, und zwar nur einmal: liegt dieselbe schon
@@ -340,7 +351,7 @@ belasten. Die Aussprache-Liste steht am Schluss und gilt rückwirkend für den g
     beziehungsweise letzte Bild, stehend und ohne Ton — voreingestellt zwei Sekunden. Das gibt
     Luft, bevor das erste Wort fällt, und beim Zusammenfügen kann die Überblendung darin liegen,
     ohne ein Wort zu verschlucken. Die Sprachausgabe beginnt dahinter.
-12. *Untertitel* schreibt den Sprechertext ins Bild: jeder Abschnitt erscheint dort, wo er
+12. *Untertitel*, im Reiter *Export* unter dem Video, schreibt den Sprechertext ins Bild: jeder Abschnitt erscheint dort, wo er
     gesprochen wird. Ein Abschnitt wird gleichmäßig auf so wenige Einblendungen verteilt, wie
     *Zeichen je Zeile* und *Zeilen je Einblendung* erlauben — geschnitten wird lieber am
     Satzende, an Doppelpunkt oder Komma und vor „und“ oder „oder“ als mitten in einer
@@ -349,15 +360,16 @@ belasten. Die Aussprache-Liste steht am Schluss und gilt rückwirkend für den g
     früher umbrochen. Die Vorschau hat das Seitenverhältnis des Videos und dieselbe Schrift
     (DejaVu) und zeigt die Einblendung so, wie sie im Video steht. Schrift,
     Größe, Farbe, Position, Abstand vom Rand, Umriss und der Kasten dahinter samt Deckkraft
-    lassen sich einstellen; der Kasten hat runde Ecken und umschließt alle Zeilen einer
+    lassen sich unter *Schrift, Kasten und Lage* einstellen; der Kasten hat runde Ecken und umschließt alle Zeilen einer
     Einblendung. Auf hellem Bild braucht weiße Schrift einen dunklen Kasten (oder umgekehrt), sonst hilft er nicht. Eingebrannt
     wird beim Kodieren, zuletzt und auf dem fertig geschnittenen Bild. Im Untertitel steht das
     Wort so, wie es geschrieben ist — die Aussprache-Liste gilt nur der Stimme.
-13. *Schnittfenster* legt Bild und Sprechertext übereinander, ohne dass etwas kodiert wird. Das
+13. *Schnittfenster* im Reiter *Schnitt*, unter den *Clips*, die dort hinzukommen, legt Bild und
+    Sprechertext übereinander, ohne dass etwas kodiert wird. Das
     Rad unter dem Bild sucht Bild für Bild; `J`, `K` und `L` fahren wie am Schnittplatz, die
     Pfeiltasten gehen ein Bild weiter, mit Umschalt eine Sekunde. `F` oder der Knopf rechts in
     der Transportleiste macht das Fenster groß; Bild, Transport und Zeitleiste gehen dabei
-    zusammen ins Vollbild, `Escape` beendet es. Zu jedem Bild steht in der *Vorschau* ein Cursor
+    zusammen ins Vollbild, `Escape` beendet es. Zu jedem Bild steht in der *Vorschau* daneben ein Cursor
     auf dem Wort, das an dieser Stelle gesprochen wird. Die Pausen liegen als gestrichelte
     Kästchen auf der Tonspur: am rechten Rand ziehen macht sie länger oder kürzer, und Bild und
     Text verschieben sich sofort gegeneinander — ohne neue Synthese. Die gezogene Länge steht
@@ -394,10 +406,12 @@ belasten. Die Aussprache-Liste steht am Schluss und gilt rückwirkend für den g
     Qualität aus *Video exportieren*; der Ton der Teile bleibt, wie er ist, und ein neuer
     Sprechertext kommt nicht darunter. Das Ergebnis liegt wie jedes andere Video auf dem Server
     und lässt sich selbst wieder zusammenfügen.
-15. *Auf dem Server* hält die Projekte und die Dateien. Ein Projekt ist dieselbe
+15. *Projekte & Dateien* hält die Projekte und die Dateien auf dem Server. Ein Projekt ist dieselbe
     Arbeitsfassung, die *Projekt exportieren* als Datei schreibt — Sprechertext, Pausen,
     Audio-, Video- und Untertiteleinstellungen und die Clips mit ihrem Schnitt —, nur liegt
-    sie auf dem Server und geht an jedem Platz wieder auf. *Als neues Projekt speichern* legt
+    sie auf dem Server und geht an jedem Platz wieder auf. Das geöffnete steht
+    oben in der Kopfleiste mit seinem Stand; *Speichern* dort oder `Strg+S` legt die Änderungen
+    auf den Server, und ein neues fragt dabei nach seinem Namen. *Als neues Projekt speichern* legt
     eines an, *Speichern* an der Zeile überschreibt es, *Laden* holt es zurück — mit seinem
     Ton: was die Stimme schon gesprochen hat, kommt aus dem Speicher des Sprachdienstes, nur
     der Rest wird gesprochen, ohne dass erst *Audio erzeugen* nötig wäre. Darunter steht,
@@ -409,11 +423,11 @@ belasten. Die Aussprache-Liste steht am Schluss und gilt rückwirkend für den g
 16. *Neues Projekt* im Menü fängt leer an: Sprechertext, Clips und Ton gehen aus der Seite,
     die Einstellungen bleiben — Format, Untertitel und Pausenlängen muss niemand neu wählen.
     Auf dem Server bleibt alles liegen, auch das bisher geöffnete Projekt, so wie es zuletzt
-    gespeichert wurde. Gespeichert wird das neue wie jedes andere im Bereich *Auf dem Server*.
+    gespeichert wurde. Gespeichert wird das neue mit *Speichern* oben, wie jedes andere.
 17. *Alles zurücksetzen* im Menü räumt die Seite auf den Stand des ersten Besuchs ab:
     Sprechertext, Pausen, Stapel, Clips und Abschrift sind weg, alle Einstellungen stehen wieder
     auf ihren Standardwerten. Was auf dem Server liegt, bleibt dabei liegen — Projekte,
-    Clips, Tonspuren, fertige Videos —, das wird im Bereich *Auf dem Server* gelöscht. Die
+    Clips, Tonspuren, fertige Videos —, das wird unter *Projekte & Dateien* gelöscht. Die
     Farbwahl bleibt, und die Aussprache-Liste bleibt auch: sie liegt auf dem Server und gehört
     keinem einzelnen Projekt. Läuft gerade etwas — Synthese, Stapel, Kodierung, Abschrift —,
     sagt die Seite das und setzt nichts zurück.

@@ -15,6 +15,8 @@ FROM nginx:alpine
 
 COPY webui/nginx.conf /etc/nginx/conf.d/default.conf
 COPY webui/index.html /usr/share/nginx/html/index.html
+COPY webui/tav.css /usr/share/nginx/html/tav.css
+COPY webui/js/ /usr/share/nginx/html/js/
 COPY webui/beispiel.txt /usr/share/nginx/html/beispiel.txt
 COPY webui/tav.svg webui/tav-180.png webui/favicon.ico /usr/share/nginx/html/
 COPY SPRECHTEXT-ANLEITUNG.md /usr/share/nginx/html/SPRECHTEXT-ANLEITUNG.md

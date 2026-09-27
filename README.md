@@ -15,10 +15,15 @@ This GitHub repository contains the service code, German text normalization rule
 - `german_text_rules.py`: the shared German abbreviation, unit and sentence-boundary rule file used by both services.
 - `docker-compose.yml`: the Home Assistant Assist setup for Kokoro ONNX plus Wyoming, the web UI, the video service and the transcription service.
 - `docker-compose.public.yml`: the same stack from the prebuilt images on Docker Hub (`age77/tav-*`), nothing to build.
-- `webui/`: a static page for writing, tuning and exporting German voice-over text.
+- `webui/`: a static page for writing, tuning and exporting German voice-over text — markup in
+  `index.html`, styles in `tav.css`, and the logic in `js/`, one classic script per area that
+  shares one namespace with the others and loads in the order `index.html` gives.
 - `video-docker/`: an ffmpeg service that joins uploaded video clips and lays the voice-over underneath.
 - `whisper-docker/`: a faster-whisper service that transcribes the speech in an uploaded video or audio file.
 - `scripts/download-model-files.sh`: downloads `kokoro-martin.onnx` and `voices-martin.npz` from Hugging Face.
+- `tests/ui/`: a Playwright smoke test that builds the web UI from the working tree, starts it in a
+  throwaway stack next to the running services and walks through the main workflows
+  (`sh tests/ui/run.sh`, `sh tests/ui/run.sh --weg` removes the stack again).
 
 ## Relationship To Upstream Projects
 
@@ -367,6 +372,31 @@ Spoken text:
 > Zum 14.05.2026 um 18:20 Uhr ist das Abendessen geplant. Für den Auflauf brauchen wir 1,5 kg Kartoffeln, 500 g Quark, 2 Eier, 1 ltr. Milch und ggf. 3 cm mehr Backpapier. Prof. Klein sagt: "Bitte stelle die Form auf die 2. Schiene, backe alles für 45 Min. und lass es danach 1 Min. oder auch 2 Min. ruhen." Die Kosten liegen bei ca. 12,80 EUR zzgl. Pfand.
 
 ## Changelog
+
+### v1.4 (September 2026)
+
+- The web UI follows the work in tabs instead of one long page of twelve panels: "Text"
+  (voice-over script with its preview side by side, pause lengths and pronunciation below),
+  "Schnitt" (the clips and the cutting window, with the preview next to the picture so the
+  cursor runs along), "Export" (audio, and video with its subtitles inside). Transcription,
+  joining videos, projects & files and the guide are tabs of their own. Only one tab is visible;
+  the last one is remembered, the address names it (`#schnitt`), and links in the texts open
+  the tab they point to. The page is wider on large screens.
+- Nothing gets lost on reload any more: the script, tempo, hand-set pauses and the film the
+  pauses follow are kept in the browser and restored, audio included from the speech cache.
+  The example text only appears on a first visit and after "Alles zurücksetzen".
+- The header names the open project and whether it is saved; "Speichern" or `Ctrl+S` stores it,
+  a new project asks for its name first. Leaving the page with unsaved changes or a running
+  upload asks first.
+- Shorter paths: "Ton speichern" right next to "Audio erzeugen", `Ctrl+Enter` speaks from
+  anywhere, and the video export starts from a preset ("Standard", "Klein", "Hohe Qualität",
+  "Hochkant") with the individual settings folded away.
+- Fixed: a pause changed in the preview did not rebuild the audio, so player and download kept
+  the old length; "Audio erzeugen" right after typing spoke the previous text and failed with
+  "Abschnitte fehlen im Zwischenspeicher"; loading the pronunciation list threw away hand-set
+  pauses; free space showed as "645578 MB" instead of "630 GB".
+- `webui/index.html` is split into markup, `tav.css` and one script per area under `webui/js/`;
+  `tests/ui/run.sh` builds the page and walks through the main workflows with Playwright.
 
 ### v1.3 (September 2026)
 
