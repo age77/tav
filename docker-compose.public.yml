@@ -14,7 +14,7 @@
 services:
   # German Kokoro ONNX speech service, OpenAI-compatible /v1/audio/speech.
   tav-onnx:
-    image: age77/tav-onnx:1
+    image: age77/tav-onnx:2
     restart: unless-stopped
     ports:
       - "8881:8881"
@@ -46,7 +46,7 @@ services:
 
   # Web page: text, voice-over, video and transcription.
   tav-webui:
-    image: age77/tav-webui:1
+    image: age77/tav-webui:2
     restart: unless-stopped
     ports:
       - "8884:80"
@@ -55,7 +55,7 @@ services:
 
   # Joins video clips, lays the voice-over underneath, encodes with ffmpeg.
   tav-video:
-    image: age77/tav-video:1
+    image: age77/tav-video:2
     restart: unless-stopped
     environment:
       - VIDEO_THREADS=4
@@ -68,7 +68,7 @@ services:
   # Transcribes uploaded video/audio with faster-whisper. The model is
   # downloaded from Hugging Face on first use and kept in the models volume.
   tav-whisper:
-    image: age77/tav-whisper:1
+    image: age77/tav-whisper:2
     restart: unless-stopped
     environment:
       - WHISPER_THREADS=4
@@ -87,7 +87,7 @@ services:
   # Wyoming bridge for Home Assistant Assist (Host: <docker-host>, Port: 10203).
   # Leave it out if you don't use Home Assistant.
   tav-wyoming:
-    image: age77/tav-wyoming:1
+    image: age77/tav-wyoming:2
     restart: unless-stopped
     ports:
       - "10203:10203"
