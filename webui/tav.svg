@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- TAV: aus Text wird Ton wird Bild. Links drei Zeilen Text, rechts ein
+       Abspieldreieck, das in Tonbalken geschnitten ist; klein bleibt davon das
+       Dreieck. Im Blau der Seite. tav-180.png und favicon.ico sind aus dieser
+       Datei gerechnet - wer sie aendert, rechnet die beiden neu. -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4a88f9"/><stop offset="1" stop-color="#2156d4"/>
+    </linearGradient>
+    <mask id="m">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M31.4 0v64M37.4 0v64M43.4 0v64" stroke="#000" stroke-width="2.4"/>
+    </mask>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#g)"/>
+  <path d="M11 23h8M11 32h8M11 41h5" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <path d="M26.5 18.5v27l25-13.5z" fill="#fff" stroke="#fff" stroke-width="4" stroke-linejoin="round" mask="url(#m)"/>
+</svg>

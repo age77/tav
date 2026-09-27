@@ -1,0 +1,13 @@
+# Beispiel
+
+(Bild: wird nicht gesprochen)
+
+Die Heizung läuft seit 3 Stunden und verbraucht ca. 3,75 kWh.
+
+(Pause: 2 s)
+
+## Zweites Kapitel
+
+Danach schaltet sie ab. Den Bericht dazu liest der Chefarzt.
+
+(Chefarzt|Schäff artzt)

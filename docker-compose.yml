@@ -1,0 +1,160 @@
+# TAV - Text to Audio to Video MultiTool, built from source:
+#
+#   docker compose up -d --build
+#
+# Web UI on port 8884, speech API on 8881, Wyoming for Home Assistant on 10203.
+# The web UI has no login of its own - put a reverse proxy with authentication
+# in front before exposing it beyond your own network. Prebuilt images:
+# docker-compose.public.yml.
+services:
+  # German Kokoro ONNX FastAPI service with v1.2 process-isolated workers.
+  tav-onnx:
+    build:
+      context: .
+      dockerfile: onnx-docker/Dockerfile
+    container_name: tav-onnx
+    restart: unless-stopped
+    ports:
+      - "8881:8881"
+    environment:
+      - KOKORO_ONNX_THREADS=2
+      - KOKORO_ONNX_INTRA_OP_THREADS=2
+      - KOKORO_ONNX_INTER_OP_THREADS=1
+      - KOKORO_ONNX_EXECUTION_MODE=sequential
+      - KOKORO_ONNX_GRAPH_OPT=all
+      - KOKORO_ONNX_SPEED=1.125
+      - KOKORO_ONNX_TRIM=true
+      - KOKORO_ONNX_VOICE=martin
+      - KOKORO_ONNX_LANG=de
+      - OMP_NUM_THREADS=2
+      - OPENBLAS_NUM_THREADS=2
+      - MKL_NUM_THREADS=2
+      - NUMEXPR_NUM_THREADS=2
+      - OMP_WAIT_POLICY=PASSIVE
+      - KOKORO_PAUSE_DURATION=0.25
+      - KOKORO_WORKERS=2
+      - KOKORO_ONNX_ALLOW_SPINNING=0
+      - KOKORO_WARMUP_TEXT=Hallo.
+      # Hier liegt die Aussprache-Liste, die fuer jeden Sprechertext gilt, und
+      # jeder Satz, den die Stimme fuer die Seite gesprochen hat.
+      - KOKORO_DATA=/data
+      # Obergrenze fuer die gesprochenen Saetze; ist sie erreicht, fallen die am
+      # laengsten nicht gebrauchten heraus. 1 GB sind gut sechs Stunden Sprache.
+      # 0 schaltet den Speicher ab - dann wird jedes Mal alles neu gesprochen.
+      - KOKORO_CACHE_GB=4
+    volumes:
+      - tav-onnx-data:/data
+
+  # Wyoming bridge for Home Assistant Assist.
+  #
+  # This image patches wyoming_openai sentence segmentation so German dotted
+  # abbreviations and units such as "Prof.", "Min.", "Stck." and "ltr." do not
+  # cause premature streaming sentence splits.
+  tav-wyoming:
+    build:
+      context: .
+      dockerfile: wyoming_openai_german_separator/Dockerfile
+    image: wyoming_openai_german_separator:latest
+    container_name: tav-wyoming
+    restart: unless-stopped
+    ports:
+      - "10203:10203"
+    command:
+      - python3
+      - -m
+      - wyoming_openai
+      - --uri
+      - tcp://0.0.0.0:10203
+      - --languages
+      - de
+      - --tts-openai-url
+      - http://tav-onnx:8881/v1
+      - --tts-models
+      - kokoro
+      - --tts-streaming-models
+      - kokoro
+      - --tts-backend
+      - KOKORO_FASTAPI
+    depends_on:
+      - tav-onnx
+
+  # Static test page for manual synthesis, served by nginx.
+  #
+  # nginx.conf proxies /v1/ to tav-onnx over the compose network, so the
+  # page calls the OpenAI-compatible speech endpoint same-origin and needs
+  # no CORS handling.
+  tav-webui:
+    build:
+      context: .
+      dockerfile: webui/Dockerfile
+    image: tav-webui:1
+    container_name: tav-webui
+    restart: unless-stopped
+    ports:
+      - "8884:80"
+    depends_on:
+      - tav-onnx
+
+
+  # Videodienst: haengt hochgeladene Clips aneinander, legt die Sprachausgabe
+  # darunter und kodiert mit ffmpeg. Kein eigener Port - die Seite erreicht
+  # ihn ueber /video/ in nginx.conf. Hochgeladene Clips und fertige Videos
+  # liegen im Volume und werden nach VIDEO_KEEP_HOURS geloescht.
+  tav-video:
+    build:
+      context: .
+      dockerfile: video-docker/Dockerfile
+    image: tav-video:1
+    container_name: tav-video
+    restart: unless-stopped
+    environment:
+      # Kodier-Threads; der Rest der CPU bleibt Sprachsynthese und Home Assistant.
+      - VIDEO_THREADS=4
+      # 0: nichts verschwindet von selbst. Clips, Tonspuren und fertige Videos
+      # bleiben liegen, bis sie im Bereich "Auf dem Server" geloescht werden.
+      - VIDEO_KEEP_HOURS=0
+      - VIDEO_MAX_UPLOAD_GB=8
+    volumes:
+      - tav-video-data:/data
+
+  # Abschriftdienst: schreibt den Ton hochgeladener Videos mit Whisper mit.
+  # Kein eigener Port - die Seite erreicht ihn ueber /whisper/ in nginx.conf.
+  # Das Modell wird beim ersten Auftrag von Hugging Face geholt und liegt
+  # danach im Volume; hochgeladene Dateien verschwinden nach
+  # WHISPER_KEEP_HOURS.
+  tav-whisper:
+    build:
+      context: .
+      dockerfile: whisper-docker/Dockerfile
+    image: tav-whisper:1
+    container_name: tav-whisper
+    restart: unless-stopped
+    environment:
+      # Rechenfaeden; der Rest der CPU bleibt Sprachsynthese und Home Assistant.
+      - WHISPER_THREADS=4
+      # Angeboten werden nur diese Modelle, vorausgewaehlt ist WHISPER_MODEL.
+      - WHISPER_MODELS=tiny,base,small
+      - WHISPER_MODEL=small
+      - WHISPER_COMPUTE=int8
+      # 0: wie beim Videodienst - geloescht wird in der Seite, nicht nach Ablauf.
+      - WHISPER_KEEP_HOURS=0
+      - WHISPER_MAX_UPLOAD_GB=8
+      # Nach dieser Ruhezeit gibt der Dienst den Modellspeicher wieder frei.
+      - WHISPER_IDLE_MINUTES=30
+      - OMP_NUM_THREADS=4
+    volumes:
+      - tav-whisper-data:/data
+      - tav-whisper-models:/models
+
+# Ohne Projektvorsatz benannt, damit ein spaeterer Namenswechsel des Stapels
+# die Daten nicht noch einmal stehen laesst.
+volumes:
+  tav-onnx-data:
+    name: tav-onnx-data
+  tav-video-data:
+    name: tav-video-data
+  tav-whisper-data:
+    name: tav-whisper-data
+  tav-whisper-models:
+    name: tav-whisper-models
+

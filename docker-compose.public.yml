@@ -1,0 +1,117 @@
+# TAV - Text to Audio to Video MultiTool, from the images on Docker Hub.
+#
+# Nothing to build and no files beside this one:
+#
+#   docker compose -f docker-compose.public.yml up -d
+#
+# then open http://<docker-host>:8884. The page has no login of its own -
+# put a reverse proxy with authentication in front before exposing it
+# beyond your own network. docker-compose.yml builds the same images from
+# source.
+#
+# The service names tav-onnx, tav-video and tav-whisper are fixed: the
+# page's nginx reaches them by these names.
+services:
+  # German Kokoro ONNX speech service, OpenAI-compatible /v1/audio/speech.
+  tav-onnx:
+    image: age77/tav-onnx:1
+    restart: unless-stopped
+    ports:
+      - "8881:8881"
+    environment:
+      - KOKORO_WORKERS=2
+      - KOKORO_ONNX_THREADS=2
+      - KOKORO_ONNX_INTRA_OP_THREADS=2
+      - KOKORO_ONNX_INTER_OP_THREADS=1
+      - KOKORO_ONNX_EXECUTION_MODE=sequential
+      - KOKORO_ONNX_GRAPH_OPT=all
+      - KOKORO_ONNX_SPEED=1.125
+      - KOKORO_ONNX_TRIM=true
+      - KOKORO_ONNX_VOICE=martin
+      - KOKORO_ONNX_LANG=de
+      - KOKORO_ONNX_ALLOW_SPINNING=0
+      - KOKORO_PAUSE_DURATION=0.25
+      - KOKORO_WARMUP_TEXT=Hallo.
+      - OMP_NUM_THREADS=2
+      - OPENBLAS_NUM_THREADS=2
+      - MKL_NUM_THREADS=2
+      - NUMEXPR_NUM_THREADS=2
+      - OMP_WAIT_POLICY=PASSIVE
+      # Pronunciation list and cache of spoken sentences.
+      - KOKORO_DATA=/data
+      # Cache limit; least recently used sentences drop out. 0 disables it.
+      - KOKORO_CACHE_GB=4
+    volumes:
+      - onnx-data:/data
+
+  # Web page: text, voice-over, video and transcription.
+  tav-webui:
+    image: age77/tav-webui:1
+    restart: unless-stopped
+    ports:
+      - "8884:80"
+    depends_on:
+      - tav-onnx
+
+  # Joins video clips, lays the voice-over underneath, encodes with ffmpeg.
+  tav-video:
+    image: age77/tav-video:1
+    restart: unless-stopped
+    environment:
+      - VIDEO_THREADS=4
+      # 0: files stay until deleted in the page.
+      - VIDEO_KEEP_HOURS=0
+      - VIDEO_MAX_UPLOAD_GB=8
+    volumes:
+      - video-data:/data
+
+  # Transcribes uploaded video/audio with faster-whisper. The model is
+  # downloaded from Hugging Face on first use and kept in the models volume.
+  tav-whisper:
+    image: age77/tav-whisper:1
+    restart: unless-stopped
+    environment:
+      - WHISPER_THREADS=4
+      - WHISPER_MODELS=tiny,base,small
+      - WHISPER_MODEL=small
+      - WHISPER_COMPUTE=int8
+      - WHISPER_KEEP_HOURS=0
+      - WHISPER_MAX_UPLOAD_GB=8
+      # Frees the model's memory after this idle time.
+      - WHISPER_IDLE_MINUTES=30
+      - OMP_NUM_THREADS=4
+    volumes:
+      - whisper-data:/data
+      - whisper-models:/models
+
+  # Wyoming bridge for Home Assistant Assist (Host: <docker-host>, Port: 10203).
+  # Leave it out if you don't use Home Assistant.
+  tav-wyoming:
+    image: age77/tav-wyoming:1
+    restart: unless-stopped
+    ports:
+      - "10203:10203"
+    command:
+      - python3
+      - -m
+      - wyoming_openai
+      - --uri
+      - tcp://0.0.0.0:10203
+      - --languages
+      - de
+      - --tts-openai-url
+      - http://tav-onnx:8881/v1
+      - --tts-models
+      - kokoro
+      - --tts-streaming-models
+      - kokoro
+      - --tts-backend
+      - KOKORO_FASTAPI
+    depends_on:
+      - tav-onnx
+
+volumes:
+  onnx-data:
+  video-data:
+  whisper-data:
+  whisper-models:
